@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinturones con detección de uso</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
+<link rel="apple-touch-icon" href="favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@500;600;700&family=Lato:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a technical brief for a supplier, calm and exact
+   IDEA a PPM field-survey dossier: one product, two seat makers, evidence filed in order
+   PICTURE the PPM solution film, large, then each seat's own footage
+   COLOUR near-black ground, graphite panels, PPM cyan leads, violet only inside the brand gradient
+   TYPE Lexend Exa (stand-in for Termina) for titles + Lato for text; Noto Sans SC for Chinese
+   LAYOUT header with logo and language; title over the film; two seat sections, each: videos side by side, notes in three columns, photo reel */
+:root{color-scheme:dark;--bg:#0d0e13;--panel:#17181f;--panel2:#1f212a;--line:#2c2f3b;--ink:#eef0f5;--soft:#a9afbb;--cyan:#00d0ff;--violet:#986aff;--grad:linear-gradient(120deg,#00d0ff,#986aff)}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Lato,"Noto Sans SC",system-ui,sans-serif;overflow-x:clip}
+:lang(zh) body,body.zh{font-family:"Noto Sans SC",Lato,system-ui,sans-serif}
+img,video{max-width:100%;display:block}
+a{color:var(--cyan)}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:max(4vw,16px)}
+header{position:sticky;top:0;z-index:20;background:rgba(13,14,19,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.logo{height:40px;width:auto}
+.nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.nav a{color:var(--soft);text-decoration:none;font-size:15px;padding:10px 12px;border-radius:8px}
+.nav a:hover{color:var(--ink);background:var(--panel2)}
+.lang{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--soft);font:600 14px Lato,"Noto Sans SC",sans-serif;min-width:48px;min-height:40px;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--cyan);color:#06121a}
+.lang button:focus-visible,.btn:focus-visible,.reel-nav button:focus-visible,.card:focus-visible,.nav a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+h1,h2,h3{font-family:"Lexend Exa",Lato,"Noto Sans SC",sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0;text-wrap:balance}
+body.zh h1,body.zh h2,body.zh h3{font-family:"Noto Sans SC",sans-serif;letter-spacing:0}
+h1{font-size:clamp(30px,4.6vw,52px);max-width:20ch}
+h2{font-size:clamp(24px,3.2vw,38px)}
+h3{font-size:20px;letter-spacing:-.01em}
+.hero{padding-block:clamp(28px,4vw,56px) clamp(32px,5vw,72px);background:radial-gradient(1100px 420px at 85% -10%,rgba(0,208,255,.13),transparent 70%),radial-gradient(900px 380px at 0% 0%,rgba(152,106,255,.10),transparent 70%)}
+.hero-top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.lead{color:var(--soft);font-size:17px;margin:14px 0 0;max-width:62ch}
+.rule{height:4px;width:120px;border-radius:4px;background:var(--grad);margin-bottom:20px}
+.film{position:relative;border-radius:18px;overflow:hidden;background:#000;border:1px solid var(--line);box-shadow:0 30px 80px -40px rgba(0,208,255,.35)}
+.film video{width:100%;aspect-ratio:16/9;background:#000}
+.cap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;color:var(--soft);font-size:15px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:700 15px Lato,"Noto Sans SC",sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--cyan)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.busy{opacity:.6;pointer-events:none}
+.seat{padding-block:clamp(40px,6vw,88px);border-top:1px solid var(--line)}
+.seat:nth-of-type(even){background:#111219}
+.seat-head{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.seat-head h2 .pre{display:block;font-size:clamp(17px,1.8vw,22px);font-weight:600;color:var(--soft);letter-spacing:-.01em;margin-bottom:8px}
+.seat-head h2 .brand{display:block;font-size:clamp(40px,6.4vw,76px);font-weight:700;line-height:1}
+.badge{flex:none;width:clamp(64px,8vw,92px);height:clamp(64px,8vw,92px);font-size:clamp(26px,3vw,38px)!important;border-radius:18px;background:var(--grad);display:grid;place-items:center;color:#07121a;font:700 22px "Lexend Exa",sans-serif}
+.label{font-size:15px;color:var(--cyan);font-weight:700;margin:0 0 12px}
+.vids{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.vid{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+.vid video{width:100%;height:min(68vh,620px);object-fit:contain;background:#000;border-radius:10px}
+.vid .cap{margin:10px 4px 2px}
+.notes{margin-top:clamp(32px,4vw,52px)}
+.obs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;counter-reset:o}
+.obs li{counter-increment:o;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 22px 24px;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.obs li::before{content:counter(o);width:44px;height:44px;border-radius:50%;border:2px solid var(--cyan);color:var(--cyan);display:grid;place-items:center;font:700 18px "Lexend Exa",sans-serif}
+.obs p{margin:0;font-size:16.5px}
+.obs a{font-weight:700;cursor:pointer}
+.photos{margin-top:clamp(32px,4vw,52px)}
+.photos-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.hint{color:var(--soft);font-size:15px;margin:4px 0 0}
+.reel-nav{display:flex;gap:8px}
+.reel-nav button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+.reel-nav button:hover{border-color:var(--cyan)}
+.reel-nav svg{width:20px;height:20px}
+.reel{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-color:var(--line) transparent}
+.card{flex:0 0 clamp(220px,26vw,300px);scroll-snap-align:start;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card button.open{all:unset;cursor:zoom-in;display:block;aspect-ratio:3/4;background:#000}
+.card button.open:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+.card img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:hover img{transform:scale(1.03)}
+.card .meta{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card .t{font-size:15px;line-height:1.4;display:flex;gap:8px}
+.card .n{color:var(--cyan);font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.card .btn{align-self:flex-start;min-height:40px;font-size:14px;margin-top:auto}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(5,6,9,.96);display:none;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;padding:14px max(3vw,14px)}
+.lb.on{display:grid}
+.lb-top,.lb-bot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lb-title{font-size:16px;display:flex;gap:8px}
+.lb-stage{position:relative;display:grid;place-items:center;min-height:0}
+.lb-stage img{max-height:100%;max-width:100%;object-fit:contain;border-radius:8px}
+.lb-arrow{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:rgba(23,24,31,.85);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+.lb-arrow svg{width:22px;height:22px}
+.lb-prev{left:0}.lb-next{right:0}
+.lb-count{color:var(--soft);font-variant-numeric:tabular-nums}
+footer{border-top:1px solid var(--line);padding-block:32px;color:var(--soft);font-size:15px}
+footer .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer img{height:34px;width:auto}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:12px 18px;border-radius:12px;font-size:15px;z-index:60;display:none;max-width:calc(100% - 32px)}
+.toast.on{display:block}
+@media(max-width:900px){.obs{grid-template-columns:1fr}.nav a{display:none}}
+@media(max-width:700px){.vids{grid-template-columns:1fr}.vid video{height:min(72vh,560px)}.logo{height:32px}.bar{height:60px}}
+@media(prefers-reduced-motion:reduce){.card img{transition:none}.reel{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <img class="logo" src="ppm-logo.png" alt="PPM Soluciones">
+    <nav class="nav" aria-label="Secciones">
+      <a href="#faic" data-i="navFaic">Asientos Faic</a>
+      <a href="#grammer" data-i="navGrammer">Asientos Grammer</a>
+      <div class="lang" role="group" aria-label="Idioma / Language / 语言">
+        <button type="button" data-lang="es" aria-pressed="true">ES</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <div class="rule"></div>
+        <h1 data-i="title">Cinturones de seguridad con detección de uso</h1>
+        <p class="lead" data-i="lead">Relevamiento de dos modelos de butaca para integrar el sistema de detección de uso de cinturón de PPM Soluciones.</p>
+      </div>
+    </div>
+    <div class="film">
+      <video controls playsinline preload="metadata" poster="media/ppm-video-corporativo.jpg" src="media/ppm-video-corporativo.mp4"></video>
+    </div>
+    <div class="cap">
+      <span data-i="corpCap">Video de la solución PPM</span>
+      <a class="btn dl" href="media/ppm-video-corporativo.mp4" data-name="PPM-Cinturones con deteccion de uso.mp4"></a>
+    </div>
+  </div>
+</section>
+
+<section class="seat" id="faic" aria-labelledby="h-faic">
+  <div class="wrap">
+    <div class="seat-head"><div class="badge" aria-hidden="true">F</div><h2 id="h-faic"><span class="pre" data-i="secPre">Cinturones de seguridad para</span><span class="brand" data-i="navFaic">Asientos Faic</span></h2></div>
+    <p class="label" data-i="videos">Videos</p>
+    <div class="vids">
+      <div class="vid"><video controls playsinline preload="metadata" poster="media/faic-video-01.jpg" src="media/faic-video-01.mp4"></video><div class="cap"><span data-i="v1">Video 1</span><a class="btn dl" href="media/faic-video-01.mp4" data-name="01 Video - Faic.mp4"></a></div></div>
+      <div class="vid"><video controls playsinline preload="metadata" poster="media/faic-video-02.jpg" src="media/faic-video-02.mp4"></video><div class="cap"><span data-i="v2">Video 2</span><a class="btn dl" href="media/faic-video-02.mp4" data-name="02 Video - Faic.mp4"></a></div></div>
+    </div>
+    <div class="notes">
+      <p class="label" data-i="obsTitle">Observaciones</p>
+      <ol class="obs" data-obs="faic"></ol>
+    </div>
+    <div class="photos">
+      <div class="photos-head">
+        <div><p class="label" data-i="photosTitle">Fotos</p><p class="hint" data-i="hint">Tocá una foto para verla en tamaño completo. Cada foto se descarga en su resolución original.</p></div>
+        <div class="reel-nav"><button type="button" data-dir="-1" data-reel="faic" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" data-dir="1" data-reel="faic" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
+      </div>
+      <div class="reel" id="reel-faic" tabindex="0" aria-label="Fotos Faic"></div>
+    </div>
+  </div>
+</section>
+
+<section class="seat" id="grammer" aria-labelledby="h-grammer">
+  <div class="wrap">
+    <div class="seat-head"><div class="badge" aria-hidden="true">G</div><h2 id="h-grammer"><span class="pre" data-i="secPre">Cinturones de seguridad para</span><span class="brand" data-i="navGrammer">Asientos Grammer</span></h2></div>
+    <p class="label" data-i="videos">Videos</p>
+    <div class="vids">
+      <div class="vid"><video controls playsinline preload="metadata" poster="media/grammer-video-01.jpg" src="media/grammer-video-01.mp4"></video><div class="cap"><span data-i="v1">Video 1</span><a class="btn dl" href="media/grammer-video-01.mp4" data-name="01 Video - Grammer.mp4"></a></div></div>
+      <div class="vid"><video controls playsinline preload="metadata" poster="media/grammer-video-02.jpg" src="media/grammer-video-02.mp4"></video><div class="cap"><span data-i="v2">Video 2</span><a class="btn dl" href="media/grammer-video-02.mp4" data-name="02 Video - Grammer.mp4"></a></div></div>
+    </div>
+    <div class="notes">
+      <p class="label" data-i="obsTitle">Observaciones</p>
+      <ol class="obs" data-obs="grammer"></ol>
+    </div>
+    <div class="photos">
+      <div class="photos-head">
+        <div><p class="label" data-i="photosTitle">Fotos</p><p class="hint" data-i="hint">Tocá una foto para verla en tamaño completo. Cada foto se descarga en su resolución original.</p></div>
+        <div class="reel-nav"><button type="button" data-dir="-1" data-reel="grammer" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" data-dir="1" data-reel="grammer" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
+      </div>
+      <div class="reel" id="reel-grammer" tabindex="0" aria-label="Fotos Grammer"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap"><img src="ppm-logo.png" alt="PPM Soluciones"><span data-i="foot">PPM Soluciones · Unidad de vehículos pesados</span></div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lb-title">
+  <div class="lb-top"><div class="lb-title" id="lb-title"></div><button type="button" class="btn" id="lb-close" data-i="close">Cerrar</button></div>
+  <div class="lb-stage">
+    <img id="lb-img" alt="">
+    <button type="button" class="lb-arrow lb-prev" id="lb-prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button type="button" class="lb-arrow lb-next" id="lb-next" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="lb-bot"><span class="lb-count" id="lb-count"></span><a class="btn dl" id="lb-dl" href="#" data-name=""></a></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+{
+const T={
+ es:{navFaic:"Asientos Faic",navGrammer:"Asientos Grammer",title:"Cinturones de seguridad con detección de uso",lead:"Relevamiento de dos modelos de butaca para integrar el sistema de detección de uso de cinturón de PPM Soluciones.",corpCap:"Video de la solución PPM",secPre:"Cinturones de seguridad para",faicTitle:"Cinturones de seguridad para Asientos Faic",grammerTitle:"Cinturones de seguridad para Asientos Grammer",videos:"Videos",v1:"Video 1",v2:"Video 2",obsTitle:"Observaciones",photosTitle:"Fotos",hint:"Tocá una foto para verla en tamaño completo. Cada foto se descarga en su resolución original.",close:"Cerrar",dl:"Descargar",dling:"Preparando descarga…",saved:"Descarga lista",fail:"No se pudo descargar. Se abrirá el archivo para guardarlo.",foot:"PPM Soluciones · Unidad de vehículos pesados",img:"imagen",prev:"Anterior",next:"Siguiente"},
+ en:{navFaic:"Faic seats",navGrammer:"Grammer seats",title:"Seat belts with usage detection",lead:"Survey of two seat models for integrating PPM Soluciones' seat belt usage detection system.",corpCap:"PPM solution video",secPre:"Seat belts for",faicTitle:"Seat belts for Faic seats",grammerTitle:"Seat belts for Grammer seats",videos:"Videos",v1:"Video 1",v2:"Video 2",obsTitle:"Observations",photosTitle:"Photos",hint:"Tap a photo to view it full size. Every photo downloads at its original resolution.",close:"Close",dl:"Download",dling:"Preparing download…",saved:"Download ready",fail:"Download failed. The file will open so you can save it.",foot:"PPM Soluciones · Heavy vehicles unit",img:"image",prev:"Previous",next:"Next"},
+ zh:{navFaic:"Faic 座椅",navGrammer:"Grammer 座椅",title:"带使用检测功能的安全带",lead:"对两种座椅型号的现场勘查，用于集成 PPM Soluciones 的安全带使用检测系统。",corpCap:"PPM 解决方案视频",secPre:"安全带，适用于",faicTitle:"适用于 Faic 座椅的安全带",grammerTitle:"适用于 Grammer 座椅的安全带",videos:"视频",v1:"视频 1",v2:"视频 2",obsTitle:"观察要点",photosTitle:"照片",hint:"点击照片查看大图。每张照片均以原始分辨率下载。",close:"关闭",dl:"下载",dling:"正在准备下载…",saved:"下载完成",fail:"下载失败，将打开文件以便保存。",foot:"PPM Soluciones · 重型车辆业务部",img:"图",prev:"上一张",next:"下一张"}
+};
+const OBS={
+ faic:[
+  {es:"Enrollador ubicado acostado en posición horizontal, con un caño/hierro que cambia 90° el sentido del cinturón de seguridad.",en:"Retractor mounted lying horizontally, with a tube/bar that turns the belt direction by 90°.",zh:"卷收器水平平躺安装，由一根管/杆将安全带方向改变 90°。"},
+  {es:"Un solo modelo de enrollador (no hay derecho e izquierdo).",en:"A single retractor model (there are no right-hand and left-hand versions).",zh:"只有一种卷收器型号（不分左右）。"},
+  {es:"Las butacas dobles ubican los dos cinturones con la misma disposición.",en:"Double seats place both belts in the same arrangement.",zh:"双人座椅的两条安全带采用相同的布置方式。"}
+ ],
+ grammer:[
+  {es:"El enrollador queda instalado con un ángulo de inclinación. El fabricante aclara que es un detalle muy importante, ya que no cualquier modelo de enrollador funciona con esta inclinación (ver {13}).",en:"The retractor is installed at an inclined angle. The manufacturer stresses this is a very important detail, as not every retractor model works at this inclination (see {13}).",zh:"卷收器以倾斜角度安装。制造商强调这是非常重要的细节，并非所有卷收器型号都能在该倾角下正常工作（见{13}）。"},
+  {es:"Existen dos modelos de enrolladores: “R” derecho y “L” izquierdo.",en:"There are two retractor models: “R” right-hand and “L” left-hand.",zh:"卷收器有两种型号：右侧“R”和左侧“L”。"},
+  {es:"Las butacas dobles ubican los dos cinturones de forma espejada, es decir, ambas instalan el enrollador en la parte interna/central de la butaca doble.",en:"Double seats place the two belts mirrored: both retractors are installed on the inner/central side of the double seat.",zh:"双人座椅的两条安全带呈镜像布置：两个卷收器都安装在双人座椅的内侧/中间位置。"}
+ ]
+};
+const P={
+ faic:[
+  ["02","Butaca doble con cinturón y embalaje","Double seat with belt and packaging","带安全带及包装的双人座椅"],
+  ["03","Butaca doble completa con cinturones","Complete double seat with belts","带安全带的完整双人座椅"],
+  ["05","Hebilla y fijación al bastidor","Buckle and its mounting to the frame","锁扣及其在骨架上的固定"],
+  ["07","Guía superior del cinturón vista 2","Upper belt guide, view 2","安全带上导向件（视图 2）"],
+  ["08","Retractor bajo bastidor vista superior","Retractor under the frame, top view","骨架下方的卷收器（俯视）"],
+  ["09","Retractor vista inferior y bulón de fijación","Retractor bottom view and mounting bolt","卷收器仰视及固定螺栓"],
+  ["10","Bastidor con hebilla y retractor","Frame with buckle and retractor","带锁扣和卷收器的骨架"],
+  ["11","Recorrido de la cinta por el bastidor","Webbing path through the frame","织带穿过骨架的走向"],
+  ["12","Anclaje abdominal atornillado al bastidor","Lap anchor bolted to the frame","用螺栓固定在骨架上的腰带锚点"],
+  ["14","Medición hebilla código 100112 vista 2","Buckle code 100112 measurement, view 2","锁扣（编号 100112）测量（视图 2）"],
+  ["15","Etiqueta Felsensohn y lengüeta","Felsensohn label and tongue","Felsensohn 标签及锁舌"],
+  ["16","Guía superior con cinta en respaldo","Upper guide with webbing on the backrest","靠背上的上导向件及织带"],
+  ["17","Retractor y soporte al bastidor","Retractor and its bracket on the frame","卷收器及其骨架支架"],
+  ["18","Retractor con medición","Retractor with measurement","卷收器尺寸测量"],
+  ["19","Retractor DO NOT REMOVE detalle","Retractor “DO NOT REMOVE” detail","卷收器 “DO NOT REMOVE” 细节"],
+  ["20","Retractor detalle lateral","Retractor side detail","卷收器侧面细节"],
+  ["21","Retractor detalle carcasa","Retractor housing detail","卷收器外壳细节"],
+  ["22","Etiqueta Felsensohn E13 16R09 y 118R04","Felsensohn label E13 16R09 and 118R04","Felsensohn 标签 E13 16R09 及 118R04"],
+  ["23","Etiqueta Felsensohn modelo FLS 03C lote FA250349","Felsensohn label, model FLS 03C, batch FA250349","Felsensohn 标签，型号 FLS 03C，批次 FA250349"],
+  ["24","Hebilla código 100112 con vástago y bulón","Buckle code 100112 with stalk and bolt","锁扣（编号 100112）带连杆及螺栓"],
+  ["25","Anclaje entre butacas con etiqueta","Anchor between seats with label","两座椅之间的锚点及标签"],
+  ["26","Hebilla y anclaje entre butacas","Buckle and anchor between seats","两座椅之间的锁扣及锚点"],
+  ["27","Bastidor inferior con retractores montado en bus","Lower frame with retractors, installed in the bus","已装车的下部骨架及卷收器"],
+  ["28","Bastidor inferior con retractores vista 2","Lower frame with retractors, view 2","下部骨架及卷收器（视图 2）"],
+  ["29","Placa Faic fecha 20-08-26 TAQ 26-154","Faic plate, date 20-08-26, TAQ 26-154","Faic 铭牌，日期 20-08-26，TAQ 26-154"]
+ ],
+ grammer:[
+  ["01","Butaca doble completa","Complete double seat","完整双人座椅"],
+  ["02","Retractor R etiqueta 3 detalle","Retractor R, label 3 detail","卷收器 R，标签 3 细节"],
+  ["03","Medición posición retractor","Retractor position measurement","卷收器位置测量"],
+  ["04","Retractor 3 y anclaje detalle","Retractor 3 and anchor detail","卷收器 3 及锚点细节"],
+  ["05","Hebilla etiqueta 4 montada en estructura","Buckle label 4 mounted on the structure","安装在结构上的锁扣（标签 4）"],
+  ["06","Medición altura anclaje y retractor R","Anchor height measurement and retractor R","锚点高度测量及卷收器 R"],
+  ["07","Medición altura respaldo hasta guía superior","Height from backrest to upper guide","靠背至上导向件的高度测量"],
+  ["08","Medición guía superior detalle","Upper guide measurement detail","上导向件测量细节"],
+  ["09","Guía superior del cinturón detalle","Upper belt guide detail","安全带上导向件细节"],
+  ["10","Cinturón de 3 puntos extendido","3-point belt extended","三点式安全带展开"],
+  ["11","Etiqueta cinturón ARK PRES TSE TS 199","Belt label ARK PRES TSE TS 199","安全带标签 ARK PRES TSE TS 199"],
+  ["12","Etiqueta cinturón E4 0437192","Belt label E4 0437192","安全带标签 E4 0437192"],
+  ["13","Retractor inferior con medición","Lower retractor with measurement","下部卷收器尺寸测量"],
+  ["16","Placa de fijación y retractor etiqueta 4","Mounting plate and retractor, label 4","固定板及卷收器（标签 4）"],
+  ["17","Hebillas entre butacas vista superior","Buckles between seats, top view","两座椅之间的锁扣（俯视）"],
+  ["18","Retractores enfrentados entre butacas","Retractors facing each other between seats","两座椅之间相对布置的卷收器"],
+  ["20","Retractor 3 con medición vista 2","Retractor 3 with measurement, view 2","卷收器 3 尺寸测量（视图 2）"]
+ ]
+};
+const BRAND={faic:"Faic",grammer:"Grammer"};
+const LI={es:1,en:2,zh:3};
+let lang="es";
+try{const s=localStorage.getItem("ppm-lang");if(s&&T[s])lang=s}catch(e){}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>';
+const capOf=(seat,i)=>P[seat][i][LI[lang]];
+const fileOf=(seat,i)=>`${P[seat][i][0]}-${BRAND[seat]}-${P[seat][i][1]}.jpg`;
+
+function renderReels(){
+  for(const seat of ["faic","grammer"]){
+    document.getElementById("reel-"+seat).innerHTML=P[seat].map((p,i)=>`<figure class="card" style="margin:0"><button type="button" class="open" data-seat="${seat}" data-i="${i}" aria-label="${esc(p[0]+" · "+capOf(seat,i))}"><img loading="lazy" src="thumbs/${seat}-${p[0]}.jpg" alt="${esc(capOf(seat,i))}"></button><figcaption class="meta"><span class="t"><span class="n">${p[0]}</span><span>${esc(capOf(seat,i))}</span></span><a class="btn dl" href="fotos/${seat}-${p[0]}.jpg" data-name="${esc(fileOf(seat,i))}"></a></figcaption></figure>`).join("");
+  }
+}
+function renderObs(){
+  for(const ol of document.querySelectorAll("[data-obs]")){
+    const seat=ol.dataset.obs;
+    ol.innerHTML=OBS[seat].map(o=>{
+      const link=`<a href="#" data-goto="${seat}:13">${esc(T[lang].img)} 13</a>`;
+      return `<li><p>${esc(o[lang]).replace("{13}",link)}</p></li>`;
+    }).join("");
+  }
+}
+function paintDl(){for(const a of document.querySelectorAll(".dl"))a.innerHTML=DL+`<span>${esc(T[lang].dl)}</span>`}
+function applyLang(){
+  document.documentElement.lang=lang==="zh"?"zh-Hans":lang;
+  document.body.classList.toggle("zh",lang==="zh");
+  for(const el of document.querySelectorAll("[data-i]")){const v=T[lang][el.dataset.i];if(v)el.textContent=v}
+  for(const b of document.querySelectorAll(".lang button"))b.setAttribute("aria-pressed",String(b.dataset.lang===lang));
+  for(const b of document.querySelectorAll("[data-dir='-1'],#lb-prev"))b.setAttribute("aria-label",T[lang].prev);
+  for(const b of document.querySelectorAll("[data-dir='1'],#lb-next"))b.setAttribute("aria-label",T[lang].next);
+  renderReels();renderObs();paintDl();
+  if(cur)showLb();
+}
+
+const toast=document.getElementById("toast");let tt;
+function say(m){toast.textContent=m;toast.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove("on"),3200)}
+
+let dlApi=null;
+(async()=>{try{dlApi=await window.claude?.use?.("downloads")}catch(e){dlApi=null}})();
+
+async function download(a){
+  if(!dlApi)return false;
+  a.classList.add("busy");say(T[lang].dling);
+  try{
+    const r=await fetch(a.getAttribute("href"));
+    if(!r.ok)throw new Error("fetch");
+    const blob=await r.blob();
+    await dlApi.save({filename:a.dataset.name,data:blob});
+    say(T[lang].saved);
+  }catch(e){
+    if(e&&e.code==="declined"){toast.classList.remove("on")}
+    else{say(T[lang].fail);window.open(a.href,"_blank","noopener")}
+  }finally{a.classList.remove("busy")}
+  return true;
+}
+
+let cur=null;
+const lb=document.getElementById("lb"),lbImg=document.getElementById("lb-img"),lbT=document.getElementById("lb-title"),lbC=document.getElementById("lb-count"),lbDl=document.getElementById("lb-dl");
+let lastFocus=null;
+function showLb(){
+  const {seat,i}=cur,p=P[seat][i];
+  lbImg.src=`fotos/${seat}-${p[0]}.jpg`;lbImg.alt=capOf(seat,i);
+  lbT.innerHTML=`<span class="n" style="color:var(--cyan);font-weight:700">${p[0]}</span><span>${esc(BRAND[seat]+" · "+capOf(seat,i))}</span>`;
+  lbC.textContent=`${i+1} / ${P[seat].length}`;
+  lbDl.setAttribute("href",`fotos/${seat}-${p[0]}.jpg`);lbDl.dataset.name=fileOf(seat,i);
+}
+function openLb(seat,i){lastFocus=document.activeElement;cur={seat,i};showLb();lb.classList.add("on");document.body.style.overflow="hidden";document.getElementById("lb-close").focus()}
+function closeLb(){lb.classList.remove("on");cur=null;document.body.style.overflow="";lastFocus?.focus?.()}
+function step(d){if(!cur)return;const n=P[cur.seat].length;cur.i=(cur.i+d+n)%n;showLb()}
+
+document.addEventListener("click",e=>{
+  const l=e.target.closest(".lang button");if(l){lang=l.dataset.lang;try{localStorage.setItem("ppm-lang",lang)}catch(x){}applyLang();return}
+  const d=e.target.closest("a.dl");if(d){if(dlApi){e.preventDefault();download(d)}else{d.setAttribute("download",d.dataset.name)}return}
+  const o=e.target.closest("button.open");if(o){openLb(o.dataset.seat,+o.dataset.i);return}
+  const g=e.target.closest("[data-goto]");if(g){e.preventDefault();const[s,n]=g.dataset.goto.split(":");const i=P[s].findIndex(p=>p[0]===n);if(i>=0)openLb(s,i);return}
+  const r=e.target.closest(".reel-nav button");if(r){const el=document.getElementById("reel-"+r.dataset.reel);el.scrollBy({left:+r.dataset.dir*el.clientWidth*.8,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});return}
+  if(e.target.id==="lb-close"||e.target===lb||e.target.classList.contains("lb-stage"))closeLb();
+});
+document.getElementById("lb-prev").addEventListener("click",()=>step(-1));
+document.getElementById("lb-next").addEventListener("click",()=>step(1));
+document.addEventListener("keydown",e=>{
+  if(cur){if(e.key==="Escape")closeLb();else if(e.key==="ArrowLeft")step(-1);else if(e.key==="ArrowRight")step(1);return}
+  const r=e.target.closest?.(".reel");if(r&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){e.preventDefault();r.scrollBy({left:(e.key==="ArrowLeft"?-1:1)*r.clientWidth*.8,behavior:"smooth"})}
+});
+for(const v of document.querySelectorAll("video"))v.addEventListener("play",()=>{for(const o of document.querySelectorAll("video"))if(o!==v)o.pause()});
+
+applyLang();
+}
+</script>
+</body>
+</html>
